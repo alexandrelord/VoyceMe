@@ -91,13 +91,13 @@ export const getBalanceFromDB = async (username: string): Promise<number> => {
 //----------------------------------------
 
 /**
- * @param {*} username - The username of the user
+ * @param {*} username - The username of the sender
  * @param {*} balance - The balance of the user
  * @param {*} amount - The amount to be added to the other user's balance
- * @param {*} to - The username of the other user
+ * @param {*} recipient - The recipient of the coins
  * @returns {Promise} - Returns a promise that resolves to the user object's balance
  *
- * This function will subtract the amount from the user's balance in the DB, and add the amount to the other user's balance in the DB
+ * This function will subtract the amount from the user's balance, and add the amount to the other user's balance in the DB
  * */
 
 export const updateBalanceInDB = async (username: string, balance: number, amount: number, recipient: string): Promise<number> => {
