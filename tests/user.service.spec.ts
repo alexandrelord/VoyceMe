@@ -32,8 +32,8 @@ describe('User Service', () => {
                 await saveUserToDB('username', 'password');
             } catch (error) {
                 if (error instanceof StatusError) {
-                    expect(error.status).toBe(400);
-                    expect(error.message).toBe('User already exists');
+                    expect(error.status).toBe(409);
+                    expect(error.message).toBe('Username already exists');
                 }
             }
         });
@@ -67,13 +67,13 @@ describe('User Service', () => {
                 }
             }
         });
-        it('should throw an error if user does not exist', async () => {
+        it('should throw an error if user not found', async () => {
             try {
                 await saveUserToDB('username', 'password');
             } catch (error) {
                 if (error instanceof StatusError) {
-                    expect(error.status).toBe(400);
-                    expect(error.message).toBe('User does not exist');
+                    expect(error.status).toBe(404);
+                    expect(error.message).toBe('User not found');
                 }
             }
         });
@@ -83,7 +83,7 @@ describe('User Service', () => {
                 await validateUser('username', 'wrong password');
             } catch (error) {
                 if (error instanceof StatusError) {
-                    expect(error.status).toBe(400);
+                    expect(error.status).toBe(401);
                     expect(error.message).toBe('Invalid password');
                 }
             }
@@ -96,13 +96,13 @@ describe('User Service', () => {
         });
     });
     describe('getBalanceFromDB', () => {
-        it('should throw an error if user does not exist', async () => {
+        it('should throw an error if user not found', async () => {
             try {
                 await getBalanceFromDB('username');
             } catch (error) {
                 if (error instanceof StatusError) {
-                    expect(error.status).toBe(400);
-                    expect(error.message).toBe('User does not exist');
+                    expect(error.status).toBe(404);
+                    expect(error.message).toBe('User not found');
                 }
             }
         });
@@ -130,18 +130,18 @@ describe('User Service', () => {
                 await updateBalanceInDB('username', 100, 150, 'recipient');
             } catch (error) {
                 if (error instanceof StatusError) {
-                    expect(error.status).toBe(400);
-                    expect(error.message).toBe('Insufficient balance');
+                    expect(error.status).toBe(403);
+                    expect(error.message).toBe('Insufficient funds');
                 }
             }
         });
-        it('should throw an error if user or to does not exist', async () => {
+        it('should throw an error if user or to not found', async () => {
             try {
                 await updateBalanceInDB('username', 100, 50, 'recipient');
             } catch (error) {
                 if (error instanceof StatusError) {
-                    expect(error.status).toBe(400);
-                    expect(error.message).toBe('User does not exist');
+                    expect(error.status).toBe(404);
+                    expect(error.message).toBe('User not found');
                 }
             }
         });
@@ -199,24 +199,14 @@ describe('User Service', () => {
                 }
             }
         });
-        it('should throw an error if the refresh token is undefined', async () => {
-            try {
-                const token = undefined;
-                await decodeJWT(token);
-            } catch (error) {
-                if (error instanceof StatusError) {
-                    expect(error.message).toBe('Refresh token is required');
-                }
-            }
-        });
-        it('should throw an error if the user does not exist', async () => {
+        it('should throw an error if the user not found', async () => {
             try {
                 const { refreshToken } = await saveUserToDB('username', 'password');
                 await User.deleteOne({ username: 'username' });
                 await decodeJWT(refreshToken);
             } catch (error) {
                 if (error instanceof StatusError) {
-                    expect(error.message).toBe('User does not exist');
+                    expect(error.message).toBe('User not found');
                 }
             }
         });

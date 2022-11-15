@@ -6,7 +6,7 @@ const router = Router();
 router.use('/users', userRoutes);
 
 // Health check
-router.get('/api/ping', (req, res) => {
+router.get('/ping', (req, res) => {
     res.status(200).json({ message: 'pong' });
 });
 

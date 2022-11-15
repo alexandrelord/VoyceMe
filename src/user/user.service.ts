@@ -18,7 +18,7 @@ export const saveUserToDB = async (username: string, password: string): Promise<
 
     const exisitingUser = await User.findOne({ username });
     if (exisitingUser) {
-        throw new StatusError(400, 'User already exists');
+        throw new StatusError(409, 'Username already exists');
     }
 
     const { salt, hash } = generatePassword(password);
@@ -55,13 +55,13 @@ export const validateUser = async (username: string, password: string): Promise<
     const user = await User.findOne({ username });
 
     if (!user) {
-        throw new StatusError(400, 'User does not exist');
+        throw new StatusError(404, 'User not found');
     }
 
     const isValid = validatePassword(password, user.password.salt, user.password.hash);
 
     if (!isValid) {
-        throw new StatusError(400, 'Invalid password');
+        throw new StatusError(401, 'Invalid password');
     }
 
     const { accessToken, refreshToken } = generateTokens(user._id);
@@ -82,7 +82,7 @@ export const getBalanceFromDB = async (username: string): Promise<number> => {
     const user = await User.findOne({ username });
 
     if (!user) {
-        throw new StatusError(400, 'User does not exist');
+        throw new StatusError(404, 'User not found');
     }
 
     return user.balance;
@@ -104,21 +104,23 @@ export const updateBalanceInDB = async (username: string, balance: number, amoun
     if (username === recipient) {
         throw new StatusError(400, 'Cannot transfer to yourself');
     }
-
+    if (amount < 0) {
+        throw new StatusError(400, 'Amount must be greater than 0');
+    }
     if (balance < amount) {
-        throw new StatusError(400, 'Insufficient balance');
+        throw new StatusError(403, 'Insufficient funds');
     }
     // Subtract the amount from the user's balance
     const fromUser = await User.findOneAndUpdate({ username }, { $inc: { balance: -amount } }, { new: true });
 
     if (!fromUser) {
-        throw new StatusError(400, 'User does not exist');
+        throw new StatusError(404, 'User not found');
     }
     // Add the amount to the other user's balance
     const toUser = await User.findOneAndUpdate({ username: recipient }, { $inc: { balance: amount } });
 
     if (!toUser) {
-        throw new StatusError(400, 'User does not exist');
+        throw new StatusError(404, 'User not found');
     }
 
     return fromUser.balance;
@@ -192,16 +194,12 @@ export const generateTokens = (_id: string): ITokens => {
  * This function will create a new access token using the refresh token for the user
  */
 
-export const decodeJWT = async (token: string | undefined): Promise<string> => {
-    if (!token) {
-        throw new StatusError(400, 'Refresh token is required');
-    }
-
+export const decodeJWT = async (token: string): Promise<string> => {
     const decoded = jsonwebtoken.verify(token, 'refresh-secret');
 
     const user = await User.findById(decoded.sub);
     if (!user) {
-        throw new StatusError(401, 'User does not exist');
+        throw new StatusError(404, 'User not found');
     }
 
     const { accessToken } = generateTokens(user._id);
