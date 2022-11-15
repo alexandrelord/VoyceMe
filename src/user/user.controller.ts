@@ -14,11 +14,11 @@ export const createUser = async (req: Request, res: Response) => {
             secure: true,
         });
         res.status(200).json({ data: accessToken });
-    } catch (err) {
-        if (err instanceof StatusError) {
-            res.status(err.status).json({ error: err.message });
+    } catch (error) {
+        if (error instanceof StatusError) {
+            res.status(error.status).json({ error: error.message });
         }
-        throw err;
+        throw error;
     }
 };
 
@@ -33,11 +33,11 @@ export const loginUser = async (req: Request, res: Response) => {
             secure: true,
         });
         res.status(200).json({ data: accessToken });
-    } catch (err) {
-        if (err instanceof StatusError) {
-            res.status(err.status).json({ error: err.message });
+    } catch (error) {
+        if (error instanceof StatusError) {
+            res.status(error.status).json({ error: error.message });
         }
-        throw err;
+        throw error;
     }
 };
 
@@ -52,7 +52,7 @@ export const refreshToken = async (req: Request, res: Response) => {
         if (error instanceof StatusError) {
             return res.status(error.status).json({ message: error.message });
         }
-        return res.status(500).json({ error });
+        throw error;
     }
 };
 
@@ -62,11 +62,11 @@ export const fetchBalance = async (req: Request, res: Response) => {
     try {
         const response = await getBalanceFromDB(username);
         res.status(200).json({ data: response });
-    } catch (err) {
-        if (err instanceof StatusError) {
-            res.status(err.status).json({ error: err.message });
+    } catch (error) {
+        if (error instanceof StatusError) {
+            res.status(error.status).json({ error: error.message });
         }
-        throw err;
+        throw error;
     }
 };
 
