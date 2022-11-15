@@ -34,8 +34,7 @@
     "scripts": {
         "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
         "lint": "eslint --ext .ts src/",
-        "test": "jest",
-        "swagger-autogen": "node ./swagger.mjs"
+        "test": "jest"
     },
     "jest": {
         "preset": "ts-jest",
