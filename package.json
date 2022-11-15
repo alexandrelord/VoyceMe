@@ -12,6 +12,7 @@
         "@types/jsonwebtoken": "^8.5.9",
         "@types/passport-jwt": "^3.0.7",
         "@types/supertest": "^2.0.12",
+        "@types/swagger-ui-express": "^4.1.3",
         "@typescript-eslint/eslint-plugin": "^5.43.0",
         "@typescript-eslint/parser": "^5.43.0",
         "eslint": "^8.27.0",
@@ -27,12 +28,14 @@
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^6.7.2",
         "passport": "^0.6.0",
-        "passport-jwt": "^4.0.0"
+        "passport-jwt": "^4.0.0",
+        "swagger-ui-express": "^4.6.0"
     },
     "scripts": {
         "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
         "lint": "eslint --ext .ts src/",
-        "test": "jest"
+        "test": "jest",
+        "swagger-autogen": "node ./swagger.mjs"
     },
     "jest": {
         "preset": "ts-jest",

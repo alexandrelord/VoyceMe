@@ -1,0 +1,288 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "VoyceMe API",
+        "description": "Coin-based API for VoyceMe",
+        "version": "1.0.0"
+    },
+    "host": "localhost:4000",
+    "schemes": ["http"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "User": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "example": "Bulma"
+                    },
+
+                    "password": {
+                        "type": "string",
+                        "example": "123456"
+                    }
+                }
+            },
+            "Balance": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "number",
+                        "example": 100
+                    }
+                }
+            },
+            "AccessToken": {
+                "type": "object",
+
+                "properties": {
+                    "data": {
+                        "type": "string",
+                        "description": "Access token",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                    }
+                }
+            },
+            "RefreshToken": {
+                "type": "string",
+                "description": "The refresh token in an HTTP-only cookie named 'jwt'"
+            }
+        }
+    },
+    "paths": {
+        "/api/users/create": {
+            "post": {
+                "tags": ["Users"],
+                "summary": "Create a new user",
+                "description": "Create a new user",
+                "operationId": "createUser",
+                "requestBody": {
+                    "description": "User object that needs to be added to the DB",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "The access token is returned in the response body and the refresh token is set in an httpOnly cookie",
+                        "headers": {
+                            "Set-Cookie": {
+                                "$ref": "#/components/schemas/RefreshToken"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccessToken"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Username and password are required"
+                    },
+                    "409": {
+                        "description": "Username already exists"
+                    }
+                }
+            }
+        },
+        "/api/users/login": {
+            "post": {
+                "tags": ["Users"],
+                "summary": "Log in a user",
+                "description": "Logs in a user",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "description": "User object that needs to be validated with user doc in DB",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "The access token is returned in the response body and the refresh token is set in an httpOnly cookie",
+                        "headers": {
+                            "Set-Cookie": {
+                                "$ref": "#/components/schemas/RefreshToken"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccessToken"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Username and password are required"
+                    },
+                    "401": {
+                        "description": "Invalid password"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/users/refresh": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Refresh the access token",
+                "description": "Refreshes a user's access token",
+                "operationId": "refreshToken",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a new access token in the response body",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccessToken"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/users/transfer": {
+            "patch": {
+                "tags": ["Users"],
+                "summary": "Transfer coins from one user to another",
+                "description": "Transfers coins from one user to another",
+                "operationId": "transferCoins",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "description": "username and amount of coins to transfer",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "Bulma"
+                                    },
+                                    "amount": {
+                                        "type": "integer",
+                                        "example": 10
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns the user's new balance",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Balance"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Cannot transfer to yourself and/or Amount must be greater than 0"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Insufficient funds"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/users/balance": {
+            "post": {
+                "tags": ["Users"],
+                "summary": "Get a user's balance",
+                "description": "Get a user's balance",
+                "operationId": "getUserBalance",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "description": "User object that needs to be validated with user doc in DB",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "Bulma"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns the user's balance",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Balance"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        }
+    }
+}
