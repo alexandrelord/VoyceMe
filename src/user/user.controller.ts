@@ -5,7 +5,7 @@ import { IUser } from './user.type';
 
 export const createUser = async (req: Request, res: Response) => {
     const { username, password } = req.body;
-    console.log(username, password);
+
     try {
         const { accessToken, refreshToken } = await saveUserToDB(username, password);
 
